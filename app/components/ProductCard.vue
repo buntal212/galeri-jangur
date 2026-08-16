@@ -34,11 +34,12 @@ const productImage = computed(() => {
 
   return null
 })
+
 </script>
 
 <template>
   <article
-    class="group cursor-pointer overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/70"
+    class="group relative cursor-pointer overflow-hidden rounded-[1.75rem] border border-slate-200/70 bg-white shadow-sm transition duration-500 hover:-translate-y-1.5 hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-300/40"
     @click="emit('select', item)"
   >
     <div
@@ -48,7 +49,9 @@ const productImage = computed(() => {
         v-if="productImage"
         :src="productImage"
         :alt="item?.name || 'Produk'"
-        class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+        loading="lazy"
+        decoding="async"
+        class="h-full w-full object-cover transition duration-700 group-hover:scale-110"
       >
 
       <div
@@ -77,21 +80,23 @@ const productImage = computed(() => {
       </div>
 
       <div
-        class="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase text-slate-700"
+        class="absolute left-3 top-3 rounded-full border border-white/70 bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-700 shadow-sm backdrop-blur"
       >
         {{ item?.category || 'Produk' }}
       </div>
+      <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/20 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
     </div>
 
-    <div class="p-4">
+    <div class="p-5">
       <div
-        class="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400"
+        class="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400"
       >
-        {{ item?.brand || 'Jangur' }}
+        <span class="truncate">{{ item?.brand || 'Jangur' }}</span>
+        <span class="shrink-0 text-amber-500">● Tersedia</span>
       </div>
 
       <h3
-        class="mt-2 line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-slate-900 sm:text-base"
+        class="mt-2 line-clamp-2 min-h-10 text-sm font-bold leading-5 tracking-[-0.01em] text-slate-950 sm:text-base"
       >
         {{ item?.namagabung || item?.name || '-' }}
       </h3>
@@ -99,7 +104,7 @@ const productImage = computed(() => {
       <div class="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
         <span
           v-if="item?.ukuran"
-          class="rounded-lg bg-slate-100 px-2 py-1"
+          class="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 font-medium"
         >
           {{ item.ukuran }}
         </span>

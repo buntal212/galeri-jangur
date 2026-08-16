@@ -30,20 +30,11 @@ export const useProdukStore = defineStore('produk', {
         this.error = null
 
         try {
-            console.log('MULAI GET PRODUK')
-
             const response = await $api.get('/product/get-products')
-
-            console.log('RESPONSE PRODUK:', response.data)
-            console.log('TYPE:', typeof response.data)
-            console.log('IS ARRAY:', Array.isArray(response.data))
 
             this.items = response.data?.data?.data ?? []
         }
         catch (error) {
-            console.error('ERROR GET PRODUK:', error)
-            console.error('ERROR RESPONSE:', error?.response?.data)
-
             this.items = []
             this.error =
             error?.response?.data?.message ||

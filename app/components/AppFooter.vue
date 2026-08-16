@@ -18,7 +18,7 @@ const whatsappUrl = phone => `https://wa.me/${String(phone || '').replace(/\D/g,
 <template>
   <footer id="kontak" class="bg-slate-950 text-white">
     <div class="mx-auto max-w-7xl px-6 lg:px-8" style="padding-top: 72px; padding-bottom: 88px;">
-      <div class="grid grid-cols-2 gap-8 md:gap-14" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);">
+      <div class="grid grid-cols-1 gap-10 sm:grid-cols-2 md:gap-14">
         <div>
           <div class="flex items-center gap-3">
             <img :src="logoUrl" alt="Logo Jangur Keramik" style="width: 46px; height: 46px; max-width: 46px; max-height: 46px;" class="rounded-xl object-cover">

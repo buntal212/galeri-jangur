@@ -6,6 +6,11 @@ const scrollToSection = (id) => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 }
 
+const goHome = () => {
+  activeMenu.value = 'beranda'
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 const activeMenu = ref('beranda')
 
 const updateActiveMenu = () => {
@@ -60,7 +65,7 @@ onMounted(() => {
           to="/"
           class="border-b-2 pb-1 text-sm transition"
           :class="activeMenu === 'beranda' ? 'border-slate-950 font-semibold text-slate-950' : 'border-transparent font-medium text-slate-500 hover:border-slate-300 hover:text-slate-950'"
-          @click="activeMenu = 'beranda'"
+          @click.prevent="goHome"
         >
           Beranda
         </NuxtLink>

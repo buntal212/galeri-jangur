@@ -1,4 +1,6 @@
 <script setup>
+import ProductAdvancedFilter from '~/components/product/ProductAdvancedFilter.vue'
+
 const produkStore = useProdukStore()
 
 const search = ref('')
@@ -102,6 +104,8 @@ watch(totalPages, (total) => {
         :total-kategori="Math.max(categories.length - 1, 0)"
       />
 
+      <HomeBenefits />
+
       <section
         id="produk"
         class="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8"
@@ -113,34 +117,16 @@ watch(totalPages, (total) => {
           @select="selectedCategory = $event"
         />
 
-        <div class="mb-8 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
-          <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <div><p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Persempit pilihan</p><p class="mt-1 text-sm text-slate-500">Temukan produk yang paling sesuai kebutuhan Anda.</p></div>
-            <button type="button" class="cursor-pointer rounded-lg px-3 py-2 text-xs font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-950" @click="selectedBrand = 'Semua'; selectedSize = 'Semua'; selectedGrade = 'Semua'; selectedType = 'Semua'">Reset filter</button>
-          </div>
-          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Merk
-              <select v-model="selectedBrand" class="mt-2 w-full cursor-pointer appearance-none rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm font-medium normal-case tracking-normal text-slate-700 outline-none transition hover:border-slate-300 focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100">
-                <option v-for="option in brands" :key="option" :value="option">{{ option }}</option>
-              </select>
-            </label>
-            <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Ukuran
-              <select v-model="selectedSize" class="mt-2 w-full cursor-pointer appearance-none rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm font-medium normal-case tracking-normal text-slate-700 outline-none transition hover:border-slate-300 focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100">
-                <option v-for="option in sizes" :key="option" :value="option">{{ option }}</option>
-              </select>
-            </label>
-            <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Grade
-              <select v-model="selectedGrade" class="mt-2 w-full cursor-pointer appearance-none rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm font-medium normal-case tracking-normal text-slate-700 outline-none transition hover:border-slate-300 focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100">
-                <option v-for="option in grades" :key="option" :value="option">{{ option }}</option>
-              </select>
-            </label>
-            <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Jenis keramik
-              <select v-model="selectedType" class="mt-2 w-full cursor-pointer appearance-none rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm font-medium normal-case tracking-normal text-slate-700 outline-none transition hover:border-slate-300 focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100">
-                <option v-for="option in types" :key="option" :value="option">{{ option }}</option>
-              </select>
-            </label>
-          </div>
-        </div>
+        <ProductAdvancedFilter
+          v-model:brand="selectedBrand"
+          v-model:size="selectedSize"
+          v-model:grade="selectedGrade"
+          v-model:type="selectedType"
+          :brands="brands"
+          :sizes="sizes"
+          :grades="grades"
+          :types="types"
+        />
 
         <ProductGrid
           :products="paginatedProducts"
