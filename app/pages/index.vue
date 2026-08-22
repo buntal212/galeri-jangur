@@ -197,6 +197,7 @@ watch(totalPages, (total) => {
           </div>
         </nav>
       </section>
+      <StoreLocation />
     </main>
 
     <AppFooter />
