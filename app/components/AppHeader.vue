@@ -3,17 +3,31 @@ import logoUrl from '~/assets/Logojk.svg'
 
 const scrollToSection = (id) => {
   activeMenu.value = id
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  const section = document.getElementById(id)
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth' })
+  } else {
+    navigateTo(`/#${id}`)
+  }
 }
 
 const goHome = () => {
   activeMenu.value = 'beranda'
+  if (route.path !== '/') {
+    return navigateTo('/')
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 const activeMenu = ref('beranda')
+const route = useRoute()
 
 const updateActiveMenu = () => {
+  if (route.path.startsWith('/produk')) {
+    activeMenu.value = 'produk'
+    return
+  }
+
   const produk = document.getElementById('produk')
   const kontak = document.getElementById('kontak')
   const scrollPosition = window.scrollY + 140
@@ -33,6 +47,8 @@ onMounted(() => {
   window.addEventListener('scroll', updateActiveMenu, { passive: true })
   onBeforeUnmount(() => window.removeEventListener('scroll', updateActiveMenu))
 })
+
+watch(() => route.path, updateActiveMenu)
 </script>
 
 <template>

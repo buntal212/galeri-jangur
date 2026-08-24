@@ -1,6 +1,10 @@
 <script setup>
 import ProductAdvancedFilter from '~/components/product/ProductAdvancedFilter.vue'
 
+const config = useRuntimeConfig()
+useSeoMeta({ title: 'Jangur Keramik | Galeri Keramik dan Granit', description: 'Jelajahi koleksi keramik, granit, dan kebutuhan finishing bangunan dari berbagai brand di Jangur Keramik.', ogTitle: 'Jangur Keramik | Galeri Keramik dan Granit', ogDescription: 'Koleksi keramik dan material bangunan pilihan di Jangur Keramik.', ogType: 'website', twitterCard: 'summary_large_image' })
+useHead(() => ({ link: [{ rel: 'canonical', href: `${String(config.public.siteUrl).replace(/\/$/, '')}/` }] }))
+
 const produkStore = useProdukStore()
 
 const search = ref('')
@@ -9,13 +13,10 @@ const selectedBrand = ref('Semua')
 const selectedSize = ref('Semua')
 const selectedGrade = ref('Semua')
 const selectedType = ref('Semua')
-const currentPage = ref(1)
-const itemsPerPage = 12
-const selectedProduct = ref(null)
 
 await Promise.all([
-  produkStore.getProduk(),
-  produkStore.getFilters()
+  produkStore.items.length ? Promise.resolve() : produkStore.getProduk(),
+  produkStore.filters.brands.length ? Promise.resolve() : produkStore.getFilters()
 ])
 
 const categories = computed(() => {
@@ -25,6 +26,8 @@ const categories = computed(() => {
 
   return ['Semua', ...new Set(data)]
 })
+const currentPage = computed({ get: () => produkStore.currentPage, set: value => { produkStore.currentPage = value } })
+const totalPages = computed(() => Math.max(produkStore.lastPage, 1))
 
 const brands = computed(() => ['Semua', ...produkStore.filters.brands])
 const sizes = computed(() => ['Semua', ...produkStore.filters.sizes])
@@ -45,29 +48,7 @@ const filteredProducts = computed(() => {
   if (selectedGrade.value !== 'Semua') products = products.filter(item => item?.kualitas === selectedGrade.value)
   if (selectedType.value !== 'Semua') products = products.filter(item => item?.kodejenis === selectedType.value)
 
-  const keyword = search.value.trim().toLowerCase()
-
-  if (keyword) {
-    products = products.filter(item => {
-      return (
-        item?.name?.toLowerCase().includes(keyword) ||
-        item?.namagabung?.toLowerCase().includes(keyword) ||
-        item?.brand?.toLowerCase().includes(keyword) ||
-        item?.ukuran?.toLowerCase().includes(keyword)
-      )
-    })
-  }
-
   return products
-})
-
-const totalPages = computed(() =>
-  Math.max(Math.ceil(filteredProducts.value.length / itemsPerPage), 1)
-)
-
-const paginatedProducts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  return filteredProducts.value.slice(start, start + itemsPerPage)
 })
 
 const visiblePages = computed(() => {
@@ -84,13 +65,25 @@ const visiblePages = computed(() => {
   return [1, '...', current - 1, current, current + 1, '...', total]
 })
 
-watch([search, selectedCategory, selectedBrand, selectedSize, selectedGrade, selectedType], () => {
-  currentPage.value = 1
+let searchTimer
+watch(search, value => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    produkStore.search = value.trim()
+    produkStore.currentPage = 1
+    produkStore.getProduk({ page: 1, search: produkStore.search })
+  }, 400)
 })
+watch(currentPage, (page, previousPage) => {
+  if (page !== previousPage) produkStore.getProduk({ page, search: produkStore.search })
+})
+onBeforeUnmount(() => clearTimeout(searchTimer))
 
-watch(totalPages, (total) => {
-  if (currentPage.value > total) currentPage.value = total
-})
+const goToPage = page => {
+  if (page === currentPage.value || page < 1 || page > totalPages.value) return
+  currentPage.value = page
+  nextTick(() => document.getElementById('produk')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+}
 </script>
 
 <template>
@@ -100,7 +93,7 @@ watch(totalPages, (total) => {
     <main>
       <HomeHero
         v-model:search="search"
-        :total-produk="produkStore.items.length"
+        :total-produk="produkStore.total"
         :total-kategori="Math.max(categories.length - 1, 0)"
       />
 
@@ -113,7 +106,7 @@ watch(totalPages, (total) => {
         <ProductFilter
           :categories="categories"
           :selected="selectedCategory"
-          :total="filteredProducts.length"
+          :total="produkStore.total"
           @select="selectedCategory = $event"
         />
 
@@ -129,16 +122,9 @@ watch(totalPages, (total) => {
         />
 
         <ProductGrid
-          :products="paginatedProducts"
+          :products="filteredProducts"
           :loading="produkStore.loading"
           :error="produkStore.error"
-          @select-product="selectedProduct = $event"
-        />
-
-        <ProductDetailModal
-          v-if="selectedProduct"
-          :item="selectedProduct"
-          @close="selectedProduct = null"
         />
 
         <nav
@@ -157,7 +143,7 @@ watch(totalPages, (total) => {
               aria-label="Halaman sebelumnya"
               :disabled="currentPage === 1"
               class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-lg text-slate-600 shadow-sm transition hover:border-slate-950 hover:bg-slate-950 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-600"
-              @click="currentPage--"
+              @click="goToPage(currentPage - 1)"
             >
               ‹
             </button>
@@ -179,7 +165,7 @@ watch(totalPages, (total) => {
                 :class="currentPage === page
                   ? 'bg-slate-950 text-white shadow-lg shadow-slate-950/20'
                   : 'border border-slate-200 bg-white text-slate-600 shadow-sm hover:border-slate-950 hover:bg-slate-950 hover:text-white'"
-                @click="currentPage = page"
+                @click="goToPage(page)"
               >
                 {{ page }}
               </button>
@@ -190,7 +176,7 @@ watch(totalPages, (total) => {
               aria-label="Halaman berikutnya"
               :disabled="currentPage === totalPages"
               class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-lg text-slate-600 shadow-sm transition hover:border-slate-950 hover:bg-slate-950 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-600"
-              @click="currentPage++"
+              @click="goToPage(currentPage + 1)"
             >
               ›
             </button>

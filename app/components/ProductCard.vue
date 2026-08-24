@@ -1,4 +1,6 @@
 <script setup>
+import { productSlug } from '~/utils/seo'
+
 const props = defineProps({
   item: {
     type: Object,
@@ -7,6 +9,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select'])
+const detailUrl = computed(() => `/produk/${productSlug(props.item)}`)
+const navigating = ref(false)
+const startNavigation = () => { navigating.value = true }
 
 const config = useRuntimeConfig()
 
@@ -38,6 +43,7 @@ const productImage = computed(() => {
 </script>
 
 <template>
+  <NuxtLink :to="detailUrl" class="block" :aria-label="`Lihat detail ${item?.namagabung || item?.name || 'produk'}`" @click="startNavigation">
   <article
     class="group relative cursor-pointer overflow-hidden rounded-[1.75rem] border border-slate-200/70 bg-white shadow-sm transition duration-500 hover:-translate-y-1.5 hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-300/40"
     @click="emit('select', item)"
@@ -85,6 +91,7 @@ const productImage = computed(() => {
         {{ item?.category || 'Produk' }}
       </div>
       <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/20 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+      <div v-if="navigating" class="absolute inset-0 z-10 flex items-center justify-center bg-white/65 backdrop-blur-[2px]"><span class="h-9 w-9 animate-spin rounded-full border-4 border-slate-300 border-t-slate-950" aria-label="Memuat detail produk" /></div>
     </div>
 
     <div class="p-5">
@@ -132,4 +139,5 @@ const productImage = computed(() => {
       </div>
     </div>
   </article>
+  </NuxtLink>
 </template>

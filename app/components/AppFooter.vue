@@ -5,12 +5,16 @@ const currentYear = new Date().getFullYear()
 const { $api } = useNuxtApp()
 const contact = ref({ profile: null, sales: [] })
 
-try {
-  const response = await $api.get('/contact')
-  contact.value = response.data?.data ?? contact.value
-} catch (error) {
-  console.error('ERROR GET CONTACT:', error)
+const loadContact = async () => {
+  try {
+    const response = await $api.get('/contact')
+    contact.value = response.data?.data ?? contact.value
+  } catch (error) {
+    console.error('ERROR GET CONTACT:', error)
+  }
 }
+
+onMounted(loadContact)
 
 const whatsappUrl = phone => `https://wa.me/${String(phone || '').replace(/\D/g, '').replace(/^0/, '62')}`
 </script>
