@@ -10,12 +10,21 @@ const { data: product, error, status } = await useAsyncData(`product-${route.par
   const payload = typeof raw === 'string' ? JSON.parse(raw.replace(/^\uFEFF/, '')) : raw
   const item = payload?.data || null
   return item && productSlug(item) === route.params.slug ? item : null
-}, { lazy: true })
+})
 
 const loading = computed(() => status.value === 'pending')
 const current = computed(() => product.value || {})
-const name = computed(() => current.value.namagabung || current.value.name || 'Produk Jangur Keramik')
-const description = computed(() => `Lihat ${name.value}${current.value.brand ? ` dari ${current.value.brand}` : ''}${current.value.ukuran ? ` ukuran ${current.value.ukuran}` : ''} di Jangur Keramik Probolinggo.`)
+const name = computed(() => String(current.value.namagabung || current.value.name || 'Produk Jangur Keramik').trim())
+const brand = computed(() => String(current.value.brand || '').trim())
+const size = computed(() => String(current.value.ukuran || '').trim())
+const grade = computed(() => String(current.value.kualitas || '').trim())
+const description = computed(() => [
+  name.value,
+  brand.value ? `dari ${brand.value}` : '',
+  size.value ? `ukuran ${size.value}` : '',
+  grade.value && grade.value !== '-' ? `kualitas ${grade.value}` : '',
+  'Lihat detail produk di Jangur Keramik Probolinggo.'
+].filter(Boolean).join(' '))
 const imageUrl = path => !path ? '' : (/^https?:\/\//i.test(path) ? path : `${config.public.backendUrl || ''}${path.startsWith('/') ? path : `/${path}`}`)
 const gallery = computed(() => { const images = Array.isArray(current.value.images) ? [...current.value.images].sort((a, b) => Number(Boolean(b.flag_thumbnail)) - Number(Boolean(a.flag_thumbnail))) : []; return [...new Set([current.value.image, ...images.map(item => item?.url || item?.image || item?.gambar)].map(imageUrl).filter(Boolean))] })
 const activeImage = ref(0)
@@ -23,8 +32,33 @@ const mainImage = computed(() => gallery.value[activeImage.value] || '')
 const imageLoading = ref(true)
 watch(mainImage, value => { imageLoading.value = Boolean(value) }, { immediate: true })
 
-useSeoMeta(() => ({ title: `${name.value} | Jangur Keramik`, description: description.value, ogTitle: `${name.value} | Jangur Keramik`, ogDescription: description.value, ...(mainImage.value ? { ogImage: mainImage.value } : {}), ogType: 'product', twitterCard: 'summary_large_image' }))
-useHead(() => ({ link: [{ rel: 'canonical', href: `${siteUrl}/produk/${route.params.slug}` }] }))
+const schemaProduct = computed(() => Object.fromEntries(Object.entries({
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: name.value,
+  image: gallery.value.length ? gallery.value : undefined,
+  description: description.value,
+  sku: current.value.sku || current.value.kodebarang,
+  brand: brand.value ? { '@type': 'Brand', name: brand.value } : undefined,
+  url: `${siteUrl}/produk/${route.params.slug}`
+}).filter(([, value]) => value !== undefined && value !== null && value !== '')))
+const schemaBreadcrumb = computed(() => ({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Beranda', item: `${siteUrl}/` },
+    { '@type': 'ListItem', position: 2, name: 'Produk', item: `${siteUrl}/` },
+    { '@type': 'ListItem', position: 3, name: name.value, item: `${siteUrl}/produk/${route.params.slug}` }
+  ]
+}))
+useSeoMeta(() => ({ title: `${name.value}${brand.value ? ` ${brand.value}` : ''}${size.value ? ` ${size.value}` : ''} | Jangur Keramik`, description: description.value, ogTitle: `${name.value} | Jangur Keramik`, ogDescription: description.value, ...(mainImage.value ? { ogImage: mainImage.value } : {}), ogType: 'product', twitterCard: 'summary_large_image' }))
+useHead(() => ({
+  link: [{ rel: 'canonical', href: `${siteUrl}/produk/${route.params.slug}` }],
+  script: [
+    { type: 'application/ld+json', children: JSON.stringify(schemaProduct.value) },
+    { type: 'application/ld+json', children: JSON.stringify(schemaBreadcrumb.value) }
+  ]
+}))
 </script>
 
 <template>

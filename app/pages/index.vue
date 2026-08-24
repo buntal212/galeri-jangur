@@ -2,8 +2,37 @@
 import ProductAdvancedFilter from '~/components/product/ProductAdvancedFilter.vue'
 
 const config = useRuntimeConfig()
-useSeoMeta({ title: 'Jangur Keramik | Galeri Keramik dan Granit', description: 'Jelajahi koleksi keramik, granit, dan kebutuhan finishing bangunan dari berbagai brand di Jangur Keramik.', ogTitle: 'Jangur Keramik | Galeri Keramik dan Granit', ogDescription: 'Koleksi keramik dan material bangunan pilihan di Jangur Keramik.', ogType: 'website', twitterCard: 'summary_large_image' })
-useHead(() => ({ link: [{ rel: 'canonical', href: `${String(config.public.siteUrl).replace(/\/$/, '')}/` }] }))
+const route = useRoute()
+const siteUrl = String(config.public.siteUrl || 'https://jangur-keramik.my.id').replace(/\/+$/, '')
+const normalizedPage = value => {
+  const parsed = Number.parseInt(String(value || '1'), 10)
+  return Number.isFinite(parsed) && parsed >= 1 ? parsed : 1
+}
+const requestedPage = computed(() => normalizedPage(route.query.page))
+const pageTitle = computed(() => requestedPage.value === 1
+  ? 'Jangur Keramik Probolinggo | Keramik & Granit'
+  : `Produk Keramik & Granit Halaman ${requestedPage.value} | Jangur Keramik Probolinggo`)
+const pageDescription = computed(() => requestedPage.value === 1
+  ? 'Katalog keramik dan granit Jangur Keramik Probolinggo. Temukan berbagai pilihan produk keramik dan material bangunan.'
+  : `Lihat katalog keramik dan granit Jangur Keramik Probolinggo halaman ${requestedPage.value}. Temukan berbagai produk dan pilihan material bangunan.`)
+useSeoMeta(() => ({ title: pageTitle.value, description: pageDescription.value, ogTitle: pageTitle.value, ogDescription: pageDescription.value, ogType: 'website', twitterCard: 'summary_large_image' }))
+useHead(() => ({
+  link: [{ rel: 'canonical', href: `${siteUrl}${requestedPage.value === 1 ? '/' : `/?page=${requestedPage.value}`}` }],
+  script: [{ type: 'application/ld+json', children: JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'Jangur Keramik',
+    url: `${siteUrl}/`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Jalan Raya Jangur Barat Sungai Paser, Pacar, Jangur',
+      addressLocality: 'Kecamatan Sumberasih',
+      addressRegion: 'Jawa Timur',
+      postalCode: '67251',
+      addressCountry: 'ID'
+    }
+  }) }]
+}))
 
 const produkStore = useProdukStore()
 
@@ -15,7 +44,9 @@ const selectedGrade = ref('Semua')
 const selectedType = ref('Semua')
 
 await Promise.all([
-  produkStore.items.length ? Promise.resolve() : produkStore.getProduk(),
+  produkStore.items.length && produkStore.currentPage === requestedPage.value
+    ? Promise.resolve()
+    : produkStore.getProduk({ page: requestedPage.value }),
   produkStore.filters.brands.length ? Promise.resolve() : produkStore.getFilters()
 ])
 
@@ -77,13 +108,19 @@ watch(search, value => {
 watch(currentPage, (page, previousPage) => {
   if (page !== previousPage) produkStore.getProduk({ page, search: produkStore.search })
 })
+watch(() => route.query.page, page => {
+  const nextPage = normalizedPage(page)
+  if (nextPage !== currentPage.value) produkStore.getProduk({ page: nextPage, search: produkStore.search })
+})
 onBeforeUnmount(() => clearTimeout(searchTimer))
 
 const goToPage = page => {
   if (page === currentPage.value || page < 1 || page > totalPages.value) return
-  currentPage.value = page
+  navigateTo({ query: page === 1 ? {} : { page } })
   nextTick(() => document.getElementById('produk')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
 }
+
+const pageLink = page => page === 1 ? '/' : { path: '/', query: { page } }
 </script>
 
 <template>
@@ -138,7 +175,8 @@ const goToPage = page => {
           </p>
 
           <div class="flex items-center gap-2">
-            <button
+            <NuxtLink
+              :to="pageLink(currentPage - 1)"
               type="button"
               aria-label="Halaman sebelumnya"
               :disabled="currentPage === 1"
@@ -146,7 +184,7 @@ const goToPage = page => {
               @click="goToPage(currentPage - 1)"
             >
               ‹
-            </button>
+            </NuxtLink>
 
             <template v-for="(page, index) in visiblePages" :key="`${page}-${index}`">
               <span
@@ -156,7 +194,8 @@ const goToPage = page => {
                 …
               </span>
 
-              <button
+              <NuxtLink
+                :to="pageLink(page)"
                 v-else
                 type="button"
                 :aria-label="`Buka halaman ${page}`"
@@ -168,10 +207,11 @@ const goToPage = page => {
                 @click="goToPage(page)"
               >
                 {{ page }}
-              </button>
+            </NuxtLink>
             </template>
 
-            <button
+            <NuxtLink
+              :to="pageLink(currentPage + 1)"
               type="button"
               aria-label="Halaman berikutnya"
               :disabled="currentPage === totalPages"
@@ -179,7 +219,7 @@ const goToPage = page => {
               @click="goToPage(currentPage + 1)"
             >
               ›
-            </button>
+            </NuxtLink>
           </div>
         </nav>
       </section>
