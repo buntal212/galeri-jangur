@@ -1,6 +1,4 @@
 <script setup>
-import { productSlug } from '~/utils/seo'
-
 const props = defineProps({
   item: {
     type: Object,
@@ -9,7 +7,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select'])
-const detailUrl = computed(() => `/produk/${productSlug(props.item)}`)
+const detailUrl = computed(() => props.item?.slug ? `/produk/${props.item.slug}` : null)
 const navigating = ref(false)
 const startNavigation = () => { navigating.value = true }
 
@@ -43,7 +41,7 @@ const productImage = computed(() => {
 </script>
 
 <template>
-  <NuxtLink :to="detailUrl" class="block" :aria-label="`Lihat detail ${item?.namagabung || item?.name || 'produk'}`" @click="startNavigation">
+  <NuxtLink v-if="detailUrl" :to="detailUrl" class="block" :aria-label="`Lihat detail ${item?.namagabung || item?.name || 'produk'}`" @click="startNavigation">
   <article
     class="group relative cursor-pointer overflow-hidden rounded-[1.75rem] border border-slate-200/70 bg-white shadow-sm transition duration-500 hover:-translate-y-1.5 hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-300/40"
     @click="emit('select', item)"

@@ -1,6 +1,5 @@
 <script setup>
 useHead({
-  title: 'Galery Jangur Keramik',
   link: [
     {
       rel: 'icon',
@@ -15,10 +14,6 @@ useHead({
     }
   ],
   meta: [
-    {
-      name: 'description',
-      content: 'Katalog produk keramik dan material bangunan Jangur Keramik.'
-    },
     {
       name: 'theme-color',
       content: '#0f172a'

@@ -134,10 +134,10 @@ const resetFilter = () => {
           >
             <option
               v-for="option in filter.options"
-              :key="option"
-              :value="option"
+              :key="typeof option === 'string' ? option : option.value"
+              :value="typeof option === 'string' ? option : option.value"
             >
-              {{ option }}
+              {{ typeof option === 'string' ? option : option.label }}
             </option>
           </select>
 

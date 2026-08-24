@@ -1,10 +1,3 @@
-const slug = value => String(value || '')
-  .normalize('NFKD')
-  .replace(/[\u0300-\u036f]/g, '')
-  .toLowerCase()
-  .replace(/[^a-z0-9]+/g, '-')
-  .replace(/^-+|-+$/g, '')
-
 const xmlEscape = value => String(value)
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
@@ -63,14 +56,7 @@ export default defineEventHandler(async event => {
   }
 
   const productUrls = products
-    .map(item =>
-      slug(
-        item.namagabung ||
-        item.name ||
-        item.kodebarang ||
-        item.id
-      )
-    )
+    .map(item => item.slug)
     .filter(Boolean)
     .map(productSlug => `${siteUrl}/produk/${productSlug}`)
 

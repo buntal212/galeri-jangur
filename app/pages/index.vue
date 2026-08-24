@@ -17,6 +17,8 @@ const pageDescription = computed(() => requestedPage.value === 1
   : `Lihat katalog keramik dan granit Jangur Keramik Probolinggo halaman ${requestedPage.value}. Temukan berbagai produk dan pilihan material bangunan.`)
 useSeoMeta(() => ({ title: pageTitle.value, description: pageDescription.value, ogTitle: pageTitle.value, ogDescription: pageDescription.value, ogType: 'website', twitterCard: 'summary_large_image' }))
 useHead(() => ({
+  title: pageTitle.value,
+  meta: [{ name: 'description', content: pageDescription.value }],
   link: [{ rel: 'canonical', href: `${siteUrl}${requestedPage.value === 1 ? '/' : `/?page=${requestedPage.value}`}` }],
   script: [{ type: 'application/ld+json', children: JSON.stringify({
     '@context': 'https://schema.org',
@@ -63,7 +65,7 @@ const totalPages = computed(() => Math.max(produkStore.lastPage, 1))
 const brands = computed(() => ['Semua', ...produkStore.filters.brands])
 const sizes = computed(() => ['Semua', ...produkStore.filters.sizes])
 const grades = computed(() => ['Semua', ...produkStore.filters.grades])
-const types = computed(() => ['Semua', ...produkStore.filters.types])
+const types = computed(() => ['Semua', ...produkStore.filters.types.map(type => typeof type === 'string' ? { value: type, label: type } : type)])
 
 const filteredProducts = computed(() => {
   let products = produkStore.items
