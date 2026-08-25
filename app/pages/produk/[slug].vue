@@ -51,12 +51,30 @@ const schemaBreadcrumb = computed(() => ({
     { '@type': 'ListItem', position: 3, name: name.value, item: `${siteUrl}/produk/${route.params.slug}` }
   ]
 }))
+const schemaProduct = computed(() => {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: name.value,
+    url: `${siteUrl}/produk/${current.value.slug || route.params.slug}`
+  }
+
+  if (description.value) schema.description = description.value
+  if (current.value.kodebarang) schema.sku = String(current.value.kodebarang).trim()
+  if (brand.value) schema.brand = { '@type': 'Brand', name: brand.value }
+  if (gallery.value.length) schema.image = gallery.value
+
+  return schema
+})
 useSeoMeta(() => ({ title: `${name.value}${brand.value ? ` ${brand.value}` : ''}${size.value ? ` ${size.value}` : ''} | Jangur Keramik`, description: description.value, ogTitle: `${name.value} | Jangur Keramik`, ogDescription: description.value, ...(mainImage.value ? { ogImage: mainImage.value } : {}), ogType: 'product', twitterCard: 'summary_large_image' }))
 useHead(() => ({
   title: `${name.value}${brand.value ? ` ${brand.value}` : ''}${size.value ? ` ${size.value}` : ''} | Jangur Keramik`,
   meta: [{ name: 'description', content: description.value }],
   link: [{ rel: 'canonical', href: `${siteUrl}/produk/${route.params.slug}` }],
-  script: [{ type: 'application/ld+json', children: JSON.stringify(schemaBreadcrumb.value) }]
+  script: [
+    { type: 'application/ld+json', children: JSON.stringify(schemaBreadcrumb.value) },
+    { type: 'application/ld+json', children: JSON.stringify(schemaProduct.value) }
+  ]
 }))
 </script>
 
