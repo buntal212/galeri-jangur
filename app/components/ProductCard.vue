@@ -17,32 +17,45 @@ const config = useRuntimeConfig()
 
 const imageUrl = (path) => {
   if (!path) return null
-  if (/^https?:\/\//i.test(path)) return path
 
   const backendUrl = config.public.backendUrl || ''
 
-  return `${backendUrl}${path.startsWith('/') ? path : `/${path}`}`
+  if (/^https?:\/\//i.test(path)) {
+    const url = new URL(path)
+    // APP_URL backend lokal dapat mengirim localhost tanpa port; gunakan origin backend Nuxt.
+    if (url.hostname === 'localhost' && !url.port && backendUrl) {
+      return `${backendUrl}${url.pathname}${url.search}${url.hash}`
+    }
+    return path
+  }
+
+  const normalizedPath = path.startsWith('images/') ? `/storage/${path}` : (path.startsWith('/') ? path : `/${path}`)
+  return `${backendUrl}${normalizedPath}`
 }
 
-const productImage = computed(() => {
-  if (props.item?.thumbnail_url) {
-    return imageUrl(props.item.thumbnail_url)
-  }
+const primaryImage = computed(() => {
+  const images = Array.isArray(props.item?.images) ? props.item.images : []
 
-  if (props.item?.image) {
-    return imageUrl(props.item.image)
-  }
-
-  if (props.item?.images?.length) {
-    return imageUrl(
-      props.item.images[0]?.url ||
-      props.item.images[0]?.image ||
-      props.item.images[0]?.gambar
-    )
-  }
-
-  return null
+  return images.find(image => Number(image?.flag_thumbnail) === 1) || images[0] || null
 })
+
+const thumbnailImage = computed(() => primaryImage.value?.thumbnail_url || props.item?.thumbnail_url || null)
+const originalImage = computed(() => {
+  if (props.item?.image) return props.item.image
+  return primaryImage.value?.url || primaryImage.value?.image || primaryImage.value?.gambar || null
+})
+const thumbnailFailed = ref(false)
+watch([thumbnailImage, originalImage], () => { thumbnailFailed.value = false })
+
+const productImage = computed(() => {
+  // Thumbnail milik gambar utama dipakai khusus untuk card/listing.
+  if (thumbnailImage.value && !thumbnailFailed.value) return imageUrl(thumbnailImage.value)
+  return imageUrl(originalImage.value)
+})
+
+const handleImageError = () => {
+  if (thumbnailImage.value && !thumbnailFailed.value) thumbnailFailed.value = true
+}
 
 </script>
 
@@ -64,6 +77,7 @@ const productImage = computed(() => {
         loading="lazy"
         decoding="async"
         class="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+        @error="handleImageError"
       >
 
       <div

@@ -98,13 +98,6 @@ watch(() => route.path, updateActiveMenu)
           {{ t('nav.products') }}
         </button>
 
-        <NuxtLink
-          :to="localePath({ name: 'tentang' })"
-          class="border-b-2 pb-1 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-950"
-        >
-          {{ t('nav.about') }}
-        </NuxtLink>
-
         <button
           type="button"
           class="cursor-pointer border-b-2 pb-1 text-sm transition"
