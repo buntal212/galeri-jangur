@@ -45,7 +45,7 @@ const searchValue = computed({
         >
           <span class="h-2 w-2 rounded-full bg-amber-500" />
 
-          <span class="text-emerald-600">●</span> {{ t('hero.badge') }}
+          <span class="h-2 w-2 rounded-full bg-emerald-600" aria-hidden="true" />{{ t('hero.badge') }}
         </div>
 
         <h1

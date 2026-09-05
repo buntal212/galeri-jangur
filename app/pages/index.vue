@@ -47,12 +47,17 @@ const selectedSize = ref('')
 const selectedGrade = ref('')
 const selectedType = ref('')
 
-await Promise.all([
-  produkStore.items.length && produkStore.currentPage === requestedPage.value
-    ? Promise.resolve()
-    : produkStore.getProduk({ page: requestedPage.value }),
-  produkStore.filters.brands.length ? Promise.resolve() : produkStore.getFilters()
-])
+const loadInitialCatalog = async () => {
+  await Promise.all([
+    produkStore.items.length && produkStore.currentPage === requestedPage.value
+      ? Promise.resolve()
+      : produkStore.getProduk({ page: requestedPage.value }),
+    produkStore.filters.brands.length ? Promise.resolve() : produkStore.getFilters()
+  ])
+}
+
+// Katalog bersifat non-kritis untuk hero: jangan tahan HTML SSR dan LCP heading.
+onMounted(() => { void loadInitialCatalog() })
 
 const categories = computed(() => {
   const data = produkStore.items
