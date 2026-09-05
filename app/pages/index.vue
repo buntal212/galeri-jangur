@@ -3,6 +3,8 @@ import ProductAdvancedFilter from '~/components/product/ProductAdvancedFilter.vu
 
 const config = useRuntimeConfig()
 const route = useRoute()
+const { t } = useI18n()
+const localePath = useLocalePath()
 const siteUrl = String(config.public.siteUrl || 'https://jangur-keramik.my.id').replace(/\/+$/, '')
 const normalizedPage = value => {
   const parsed = Number.parseInt(String(value || '1'), 10)
@@ -10,21 +12,21 @@ const normalizedPage = value => {
 }
 const requestedPage = computed(() => normalizedPage(route.query.page))
 const pageTitle = computed(() => requestedPage.value === 1
-  ? 'Jangur Keramik Probolinggo | Keramik & Granit'
-  : `Produk Keramik & Granit Halaman ${requestedPage.value} | Jangur Keramik Probolinggo`)
+  ? `Jangur Keramik Probolinggo | ${t('hero.products')}`
+  : `${t('catalog.page')} ${requestedPage.value} | Jangur Keramik Probolinggo`)
 const pageDescription = computed(() => requestedPage.value === 1
-  ? 'Katalog keramik dan granit Jangur Keramik Probolinggo. Temukan berbagai pilihan produk keramik dan material bangunan.'
-  : `Lihat katalog keramik dan granit Jangur Keramik Probolinggo halaman ${requestedPage.value}. Temukan berbagai produk dan pilihan material bangunan.`)
+  ? t('hero.description')
+  : `${t('hero.description')} ${t('catalog.page')} ${requestedPage.value}.`)
 useSeoMeta(() => ({ title: pageTitle.value, description: pageDescription.value, ogTitle: pageTitle.value, ogDescription: pageDescription.value, ogType: 'website', twitterCard: 'summary_large_image' }))
 useHead(() => ({
   title: pageTitle.value,
   meta: [{ name: 'description', content: pageDescription.value }],
-  link: [{ rel: 'canonical', href: `${siteUrl}${requestedPage.value === 1 ? '/' : `/?page=${requestedPage.value}`}` }],
+  link: [{ rel: 'canonical', href: `${siteUrl}${localePath({ name: route.name === 'produk' ? 'produk' : 'index' })}${requestedPage.value === 1 ? '' : `?page=${requestedPage.value}`}` }],
   script: [{ type: 'application/ld+json', children: JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'Jangur Keramik',
-    url: `${siteUrl}/`,
+    url: `${siteUrl}${localePath({ name: route.name === 'produk' ? 'produk' : 'index' })}`,
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'Jalan Raya Jangur Barat Sungai Paser, Pacar, Jangur',
@@ -39,11 +41,11 @@ useHead(() => ({
 const produkStore = useProdukStore()
 
 const search = ref('')
-const selectedCategory = ref('Semua')
-const selectedBrand = ref('Semua')
-const selectedSize = ref('Semua')
-const selectedGrade = ref('Semua')
-const selectedType = ref('Semua')
+const selectedCategory = ref('')
+const selectedBrand = ref('')
+const selectedSize = ref('')
+const selectedGrade = ref('')
+const selectedType = ref('')
 
 await Promise.all([
   produkStore.items.length && produkStore.currentPage === requestedPage.value
@@ -57,29 +59,29 @@ const categories = computed(() => {
     .map(item => item?.category)
     .filter(Boolean)
 
-  return ['Semua', ...new Set(data)]
+  return [{ value: '', label: t('catalog.all') }, ...new Set(data)]
 })
 const currentPage = computed({ get: () => produkStore.currentPage, set: value => { produkStore.currentPage = value } })
 const totalPages = computed(() => Math.max(produkStore.lastPage, 1))
 
-const brands = computed(() => ['Semua', ...produkStore.filters.brands])
-const sizes = computed(() => ['Semua', ...produkStore.filters.sizes])
-const grades = computed(() => ['Semua', ...produkStore.filters.grades])
-const types = computed(() => ['Semua', ...produkStore.filters.types.map(type => typeof type === 'string' ? { value: type, label: type } : type)])
+const brands = computed(() => [{ value: '', label: t('catalog.all') }, ...produkStore.filters.brands])
+const sizes = computed(() => [{ value: '', label: t('catalog.all') }, ...produkStore.filters.sizes])
+const grades = computed(() => [{ value: '', label: t('catalog.all') }, ...produkStore.filters.grades])
+const types = computed(() => [{ value: '', label: t('catalog.all') }, ...produkStore.filters.types.map(type => typeof type === 'string' ? { value: type, label: type } : type)])
 
 const filteredProducts = computed(() => {
   let products = produkStore.items
 
-  if (selectedCategory.value !== 'Semua') {
+  if (selectedCategory.value) {
     products = products.filter(
       item => item?.category === selectedCategory.value
     )
   }
 
-  if (selectedBrand.value !== 'Semua') products = products.filter(item => item?.brand === selectedBrand.value)
-  if (selectedSize.value !== 'Semua') products = products.filter(item => item?.ukuran === selectedSize.value)
-  if (selectedGrade.value !== 'Semua') products = products.filter(item => item?.kualitas === selectedGrade.value)
-  if (selectedType.value !== 'Semua') products = products.filter(item => item?.kodejenis === selectedType.value)
+  if (selectedBrand.value) products = products.filter(item => item?.brand === selectedBrand.value)
+  if (selectedSize.value) products = products.filter(item => item?.ukuran === selectedSize.value)
+  if (selectedGrade.value) products = products.filter(item => item?.kualitas === selectedGrade.value)
+  if (selectedType.value) products = products.filter(item => item?.kodejenis === selectedType.value)
 
   return products
 })
@@ -122,7 +124,7 @@ const goToPage = page => {
   nextTick(() => document.getElementById('produk')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
 }
 
-const pageLink = page => page === 1 ? '/' : { path: '/', query: { page } }
+const pageLink = page => ({ path: localePath({ name: route.name === 'produk' ? 'produk' : 'index' }), query: page === 1 ? {} : { page } })
 </script>
 
 <template>
@@ -169,18 +171,18 @@ const pageLink = page => page === 1 ? '/' : { path: '/', query: { page } }
         <nav
           v-if="!produkStore.loading && !produkStore.error && filteredProducts.length"
           class="mt-12 flex flex-col items-center justify-between gap-5 border-t border-slate-200/80 pt-6 sm:flex-row"
-          aria-label="Paginasi produk"
+          :aria-label="t('hero.products')"
         >
-          <p class="text-sm text-slate-500">
-            Halaman <span class="font-semibold text-slate-950">{{ currentPage }}</span>
-            dari <span class="font-semibold text-slate-950">{{ totalPages }}</span>
+          <p class="text-sm text-slate-600">
+            {{ t('catalog.page') }} <span class="font-semibold text-slate-950">{{ currentPage }}</span>
+            {{ t('catalog.of') }} <span class="font-semibold text-slate-950">{{ totalPages }}</span>
           </p>
 
           <div class="flex items-center gap-2">
             <NuxtLink
               :to="pageLink(currentPage - 1)"
               type="button"
-              aria-label="Halaman sebelumnya"
+              :aria-label="t('catalog.previousPage')"
               :disabled="currentPage === 1"
               class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-lg text-slate-600 shadow-sm transition hover:border-slate-950 hover:bg-slate-950 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-600"
               @click="goToPage(currentPage - 1)"
@@ -191,7 +193,7 @@ const pageLink = page => page === 1 ? '/' : { path: '/', query: { page } }
             <template v-for="(page, index) in visiblePages" :key="`${page}-${index}`">
               <span
                 v-if="page === '...'"
-                class="flex h-10 w-7 items-center justify-center text-sm text-slate-400"
+                class="flex h-10 w-7 items-center justify-center text-sm text-slate-600"
               >
                 …
               </span>
@@ -200,7 +202,7 @@ const pageLink = page => page === 1 ? '/' : { path: '/', query: { page } }
                 :to="pageLink(page)"
                 v-else
                 type="button"
-                :aria-label="`Buka halaman ${page}`"
+                :aria-label="t('catalog.openPage', { page })"
                 :aria-current="currentPage === page ? 'page' : undefined"
                 class="flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-semibold transition"
                 :class="currentPage === page
@@ -215,7 +217,7 @@ const pageLink = page => page === 1 ? '/' : { path: '/', query: { page } }
             <NuxtLink
               :to="pageLink(currentPage + 1)"
               type="button"
-              aria-label="Halaman berikutnya"
+              :aria-label="t('catalog.nextPage')"
               :disabled="currentPage === totalPages"
               class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-lg text-slate-600 shadow-sm transition hover:border-slate-950 hover:bg-slate-950 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-600"
               @click="goToPage(currentPage + 1)"

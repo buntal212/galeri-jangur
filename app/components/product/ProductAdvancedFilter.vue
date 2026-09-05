@@ -22,35 +22,36 @@ const brand = defineModel('brand')
 const size = defineModel('size')
 const grade = defineModel('grade')
 const type = defineModel('type')
+const { t } = useI18n()
 
 const filters = computed(() => [
   {
-    label: 'Merk',
+    label: t('catalog.brand'),
     model: brand,
     options: props.brands
   },
   {
-    label: 'Ukuran',
+    label: t('catalog.size'),
     model: size,
     options: props.sizes
   },
   {
-    label: 'Grade',
+    label: t('catalog.grade'),
     model: grade,
     options: props.grades
   },
   {
-    label: 'Jenis Keramik',
+    label: t('catalog.type'),
     model: type,
     options: props.types
   }
 ])
 
 const resetFilter = () => {
-  brand.value = 'Semua'
-  size.value = 'Semua'
-  grade.value = 'Semua'
-  type.value = 'Semua'
+  brand.value = ''
+  size.value = ''
+  grade.value = ''
+  type.value = ''
 }
 </script>
 <template>
@@ -82,18 +83,18 @@ const resetFilter = () => {
 
         <div>
           <h3 class="text-sm font-bold text-slate-950">
-            Filter produk
+            {{ t('catalog.filter') }}
           </h3>
 
-          <p class="mt-0.5 text-xs text-slate-500">
-            Persempit pilihan berdasarkan spesifikasi produk.
+          <p class="mt-0.5 text-xs text-slate-600">
+            {{ t('catalog.filterDescription') }}
           </p>
         </div>
       </div>
 
       <button
         type="button"
-        class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
+        class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
         @click="resetFilter"
       >
         <svg
@@ -110,7 +111,7 @@ const resetFilter = () => {
           />
         </svg>
 
-        Reset filter
+        {{ t('catalog.reset') }}
       </button>
     </div>
 
@@ -122,7 +123,7 @@ const resetFilter = () => {
         class="block"
       >
         <span
-          class="mb-2 block text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400"
+          class="mb-2 block text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600"
         >
           {{ filter.label }}
         </span>
@@ -146,7 +147,7 @@ const resetFilter = () => {
             fill="none"
             stroke="currentColor"
             stroke-width="2"
-            class="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+            class="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600"
           >
             <path
               stroke-linecap="round"

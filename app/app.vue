@@ -20,6 +20,8 @@ useHead({
     }
   ]
 })
+
+useHead(useLocaleHead({ addSeoAttributes: true }))
 </script>
 
 <template>

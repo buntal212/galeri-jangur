@@ -7,7 +7,7 @@ defineProps({
 
   selected: {
     type: String,
-    default: 'Semua'
+    default: ''
   },
 
   total: {
@@ -17,6 +17,7 @@ defineProps({
 })
 
 defineEmits(['select'])
+const { t } = useI18n()
 </script>
 
 <template>
@@ -26,33 +27,33 @@ defineEmits(['select'])
   >
     <div>
       <p
-        class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-400"
+        class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-600"
       >
-        Koleksi pilihan
+        {{ t('catalog.eyebrow') }}
       </p>
 
       <h2 class="text-3xl font-bold tracking-[-0.03em] text-slate-950">
-        Jelajahi Produk
+        {{ t('catalog.title') }}
       </h2>
 
-      <p class="mt-2 text-sm text-slate-500">
-        {{ total }} produk ditemukan
+      <p class="mt-2 text-sm text-slate-600">
+        {{ t('catalog.found', { count: total }) }}
       </p>
     </div>
 
     <div class="flex max-w-full gap-2 overflow-x-auto pb-2">
       <button
         v-for="category in categories"
-        :key="category"
+        :key="typeof category === 'string' ? category : category.value"
         class="shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition"
         :class="
-          selected === category
+          selected === (typeof category === 'string' ? category : category.value)
             ? 'bg-slate-950 text-white'
             : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-300'
         "
-        @click="$emit('select', category)"
+        @click="$emit('select', typeof category === 'string' ? category : category.value)"
       >
-        {{ category }}
+        {{ typeof category === 'string' ? category : category.label }}
       </button>
     </div>
   </div>

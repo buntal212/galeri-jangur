@@ -7,7 +7,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select'])
-const detailUrl = computed(() => props.item?.slug ? `/produk/${props.item.slug}` : null)
+const { t } = useI18n()
+const localePath = useLocalePath()
+const detailUrl = computed(() => props.item?.slug ? localePath({ name: 'produk-slug', params: { slug: props.item.slug } }) : null)
 const navigating = ref(false)
 const startNavigation = () => { navigating.value = true }
 
@@ -23,6 +25,10 @@ const imageUrl = (path) => {
 }
 
 const productImage = computed(() => {
+  if (props.item?.thumbnail_url) {
+    return imageUrl(props.item.thumbnail_url)
+  }
+
   if (props.item?.image) {
     return imageUrl(props.item.image)
   }
@@ -41,7 +47,7 @@ const productImage = computed(() => {
 </script>
 
 <template>
-  <NuxtLink v-if="detailUrl" :to="detailUrl" class="block" :aria-label="`Lihat detail ${item?.namagabung || item?.name || 'produk'}`" @click="startNavigation">
+  <NuxtLink v-if="detailUrl" :to="detailUrl" class="block" :aria-label="`${t('catalog.viewDetails')} ${item?.namagabung || item?.name || 'produk'}`" @click="startNavigation">
   <article
     class="group relative cursor-pointer overflow-hidden rounded-[1.75rem] border border-slate-200/70 bg-white shadow-sm transition duration-500 hover:-translate-y-1.5 hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-300/40"
     @click="emit('select', item)"
@@ -53,6 +59,8 @@ const productImage = computed(() => {
         v-if="productImage"
         :src="productImage"
         :alt="item?.name || 'Produk'"
+        width="400"
+        height="400"
         loading="lazy"
         decoding="async"
         class="h-full w-full object-cover transition duration-700 group-hover:scale-110"
@@ -66,7 +74,7 @@ const productImage = computed(() => {
           class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm"
         >
           <svg
-            class="h-6 w-6 text-slate-400"
+            class="h-6 w-6 text-slate-600"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -78,15 +86,15 @@ const productImage = computed(() => {
           </svg>
         </div>
 
-        <span class="mt-3 text-xs font-medium text-slate-400">
-          Foto segera tersedia
+        <span class="mt-3 text-xs font-medium text-slate-600">
+          {{ t('catalog.imageUnavailable') }}
         </span>
       </div>
 
       <div
         class="absolute left-3 top-3 rounded-full border border-white/70 bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-700 shadow-sm backdrop-blur"
       >
-        {{ item?.category || 'Produk' }}
+        {{ item?.category || t('nav.products') }}
       </div>
       <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/20 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
       <div v-if="navigating" class="absolute inset-0 z-10 flex items-center justify-center bg-white/65 backdrop-blur-[2px]"><span class="h-9 w-9 animate-spin rounded-full border-4 border-slate-300 border-t-slate-950" aria-label="Memuat detail produk" /></div>
@@ -94,10 +102,10 @@ const productImage = computed(() => {
 
     <div class="p-5">
       <div
-        class="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400"
+        class="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600"
       >
         <span class="truncate">{{ item?.brand || 'Jangur' }}</span>
-        <span class="shrink-0 text-amber-500">● Tersedia</span>
+        <span class="inline-flex shrink-0 items-center gap-1.5 text-amber-700"><span class="h-1.5 w-1.5 rounded-full bg-amber-600" aria-hidden="true" />{{ t('catalog.available') }}</span>
       </div>
 
       <h3
@@ -106,7 +114,7 @@ const productImage = computed(() => {
         {{ item?.namagabung || item?.name || '-' }}
       </h3>
 
-      <div class="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
+      <div class="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
         <span
           v-if="item?.ukuran"
           class="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 font-medium"
@@ -125,14 +133,14 @@ const productImage = computed(() => {
       <div
         class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4"
       >
-        <span class="text-xs font-medium text-slate-400">
-          Lihat detail
+        <span class="text-xs font-medium text-slate-600">
+          {{ t('catalog.viewDetails') }}
         </span>
 
         <div
           class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 transition group-hover:bg-slate-950 group-hover:text-white"
         >
-          →
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6" /></svg>
         </div>
       </div>
     </div>

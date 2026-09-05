@@ -5,27 +5,28 @@
         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" :d="benefit.icon" /></svg>
         </div>
-        <div><p class="text-sm font-bold text-slate-900">{{ benefit.title }}</p><p class="mt-0.5 text-xs text-slate-500">{{ benefit.description }}</p></div>
+        <div><p class="text-sm font-bold text-slate-900">{{ t(benefit.title) }}</p><p class="mt-0.5 text-xs text-slate-600">{{ t(benefit.description) }}</p></div>
       </div>
     </div>
   </section>
 
   <section class="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
     <div class="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
-      <div><p class="text-xs font-bold uppercase tracking-[0.2em] text-amber-500">Kenapa Jangur?</p><h2 class="mt-3 max-w-md text-3xl font-bold leading-tight tracking-[-0.04em] text-slate-950 sm:text-4xl">Pilihan material yang membuat proyek terasa lebih mudah.</h2><p class="mt-5 max-w-md text-sm leading-6 text-slate-500">Kami membantu Anda menemukan produk yang tepat dengan pilihan brand, ukuran, dan spesifikasi yang lengkap.</p></div>
+      <div><p class="text-xs font-bold uppercase tracking-[0.2em] text-amber-700">{{ t('benefits.eyebrow') }}</p><h2 class="mt-3 max-w-md text-3xl font-bold leading-tight tracking-[-0.04em] text-slate-950 sm:text-4xl">{{ t('benefits.title') }}</h2><p class="mt-5 max-w-md text-sm leading-6 text-slate-600">{{ t('benefits.description') }}</p></div>
       <div class="grid gap-3 sm:grid-cols-2">
-        <div v-for="reason in reasons" :key="reason.title" class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"><div class="text-2xl">{{ reason.icon }}</div><h3 class="mt-4 font-bold text-slate-950">{{ reason.title }}</h3><p class="mt-2 text-sm leading-6 text-slate-500">{{ reason.description }}</p></div>
+        <div v-for="reason in localizedReasons" :key="reason.title" class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"><div class="text-2xl">{{ reason.icon }}</div><h3 class="mt-4 font-bold text-slate-950">{{ t(reason.title) }}</h3><p class="mt-2 text-sm leading-6 text-slate-600">{{ t(reason.description) }}</p></div>
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
+const { t } = useI18n()
 const benefits = [
-  { title: 'Koleksi lengkap', description: 'Beragam pilihan produk', icon: 'M4 6h16M4 12h16M4 18h16' },
-  { title: 'Brand terpercaya', description: 'Kualitas pilihan terbaik', icon: 'M12 3 4 7v5c0 4.5 3.4 7.7 8 9 4.6-1.3 8-4.5 8-9V7l-8-4Z' },
-  { title: 'Stok tersedia', description: 'Data diperbarui berkala', icon: 'M5 12h14M12 5v14' },
-  { title: 'Sales siap bantu', description: 'Konsultasi lebih mudah', icon: 'M20 11a8 8 0 1 1-3-6.2M20 4v7h-7' }
+  { title: 'benefits.complete', description: 'benefits.completeDescription', icon: 'M4 6h16M4 12h16M4 18h16' },
+  { title: 'benefits.trusted', description: 'benefits.trustedDescription', icon: 'M12 3 4 7v5c0 4.5 3.4 7.7 8 9 4.6-1.3 8-4.5 8-9V7l-8-4Z' },
+  { title: 'benefits.stock', description: 'benefits.stockDescription', icon: 'M5 12h14M12 5v14' },
+  { title: 'benefits.sales', description: 'benefits.salesDescription', icon: 'M20 11a8 8 0 1 1-3-6.2M20 4v7h-7' }
 ]
 
 const reasons = [
@@ -33,5 +34,12 @@ const reasons = [
   { title: 'Pencarian praktis', description: 'Gunakan pencarian dan filter untuk mempersempit pilihan.', icon: '⌕' },
   { title: 'Pilihan terpercaya', description: 'Koleksi dari berbagai brand untuk kebutuhan rumah dan proyek.', icon: '✦' },
   { title: 'Dukungan Sales', description: 'Dapatkan bantuan langsung dari tim Sales Jangur.', icon: '↗' }
+]
+
+const localizedReasons = [
+  { title: 'benefits.specification', description: 'benefits.specificationDescription', icon: '◇' },
+  { title: 'benefits.search', description: 'benefits.searchDescription', icon: '⌕' },
+  { title: 'benefits.choice', description: 'benefits.choiceDescription', icon: '✦' },
+  { title: 'benefits.support', description: 'benefits.supportDescription', icon: '↗' }
 ]
 </script>

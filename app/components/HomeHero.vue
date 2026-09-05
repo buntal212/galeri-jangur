@@ -17,6 +17,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:search'])
+const { t } = useI18n()
 
 const searchValue = computed({
   get() {
@@ -44,28 +45,27 @@ const searchValue = computed({
         >
           <span class="h-2 w-2 rounded-full bg-amber-500" />
 
-          <span class="text-emerald-600">●</span> Koleksi produk terbaru
+          <span class="text-emerald-600">●</span> {{ t('hero.badge') }}
         </div>
 
         <h1
           class="max-w-3xl text-4xl font-bold leading-[1.03] tracking-[-0.05em] text-slate-950 sm:text-5xl lg:text-6xl"
         >
-          Temukan material terbaik untuk
-          <span class="text-slate-400 decoration-amber-300 decoration-4 underline-offset-8">
-            ruang impian Anda.
+          {{ t('hero.title') }}
+          <span class="text-slate-600 decoration-amber-300 decoration-4 underline-offset-8">
+            {{ t('hero.titleAccent') }}
           </span>
         </h1>
 
-        <p class="mt-6 max-w-2xl text-base leading-7 text-slate-500 sm:text-lg">
-          Jelajahi koleksi keramik dan material bangunan pilihan dari berbagai
-          brand dengan desain dan kualitas terbaik.
+        <p class="mt-6 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+          {{ t('hero.description') }}
         </p>
 
         <div
           class="mt-8 flex max-w-xl items-center rounded-2xl border border-slate-200/80 bg-white p-2 shadow-xl shadow-slate-300/30 transition focus-within:border-amber-400 focus-within:ring-4 focus-within:ring-amber-100"
         >
           <svg
-            class="ml-3 h-5 w-5 text-slate-400"
+            class="ml-3 h-5 w-5 text-slate-600"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -78,7 +78,7 @@ const searchValue = computed({
           <input
             v-model="searchValue"
             type="text"
-            placeholder="Cari keramik, brand atau ukuran..."
+            :placeholder="t('hero.search')"
             class="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm outline-none"
           >
         </div>
@@ -97,13 +97,13 @@ const searchValue = computed({
               <div
                 class="inline-flex rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-xs text-amber-100"
               >
-                Jangur Collection
+                {{ t('hero.collection') }}
               </div>
 
               <h2
                 class="mt-5 max-w-sm text-4xl font-semibold tracking-tight text-white"
               >
-                Inspirasi dimulai dari pilihan yang tepat.
+                {{ t('hero.inspiration') }}
               </h2>
             </div>
 
@@ -116,7 +116,7 @@ const searchValue = computed({
                 </div>
 
                 <div class="mt-1 text-xs text-white/60">
-                  Produk
+                  {{ t('hero.products') }}
                 </div>
               </div>
 
@@ -128,7 +128,7 @@ const searchValue = computed({
                 </div>
 
                 <div class="mt-1 text-xs text-white/60">
-                  Kategori
+                  {{ t('hero.categories') }}
                 </div>
               </div>
             </div>

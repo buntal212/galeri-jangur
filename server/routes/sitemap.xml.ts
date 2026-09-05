@@ -58,9 +58,14 @@ export default defineEventHandler(async event => {
   const productUrls = products
     .map(item => item.slug)
     .filter(Boolean)
-    .map(productSlug => `${siteUrl}/produk/${productSlug}`)
+    .flatMap(productSlug => [`${siteUrl}/produk/${productSlug}`, `${siteUrl}/en/products/${productSlug}`])
 
-  const urls = [`${siteUrl}/`, ...productUrls]
+  const urls = [
+    `${siteUrl}/`, `${siteUrl}/en`,
+    `${siteUrl}/tentang`, `${siteUrl}/en/about`,
+    `${siteUrl}/kontak`, `${siteUrl}/en/contact`,
+    ...productUrls
+  ]
     .filter(Boolean)
     .filter((url, index, all) => all.indexOf(url) === index)
 

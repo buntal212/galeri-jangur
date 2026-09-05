@@ -1,5 +1,6 @@
 <script setup>
 defineEmits(['select-product'])
+const { t } = useI18n()
 
 defineProps({
   products: {
@@ -45,7 +46,7 @@ defineProps({
       class="rounded-3xl border border-red-100 bg-gradient-to-br from-red-50 to-white p-8 text-center"
     >
       <div class="font-semibold text-red-700">
-        Produk belum dapat dimuat
+        {{ t('catalog.loadError') }}
       </div>
 
       <p class="mt-1 text-sm text-red-500">
@@ -70,11 +71,11 @@ defineProps({
       class="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-20 text-center"
     >
       <div class="text-lg font-bold">
-        Produk tidak ditemukan
+        {{ t('catalog.notFound') }}
       </div>
 
-      <p class="mt-2 text-sm text-slate-500">
-        Coba gunakan kata pencarian atau kategori lainnya.
+      <p class="mt-2 text-sm text-slate-600">
+        {{ t('catalog.notFoundDescription') }}
       </p>
     </div>
   </div>
